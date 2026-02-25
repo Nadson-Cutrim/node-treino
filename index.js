@@ -74,6 +74,35 @@ app.get("/users", async (req, res) => {
   }
 });
 
+//Excluir Usuário po id
+app.delete("/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1. Referência do documento
+    const userRef = db.collection("users").doc(id);
+    
+    // 2. Checagem real: o documento existe?
+    const doc = await userRef.get();
+    
+    if (!doc.exists) {
+      console.log("❌ Documento não encontrado no Firebase.");
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    // 3. Deleta de fato
+    await userRef.delete();
+    
+    console.log(`✅ Documento ${id} apagado com sucesso.`);
+    res.status(200).json({ message: "Usuário deletado com sucesso" });
+
+  } catch (error) {
+    console.error("💥 Erro ao deletar:", error);
+    res.status(500).json({ error: "Erro interno no servidor" });
+  }
+});
+
+//
 const port = 6969;
 
 app.listen(port, () => {
